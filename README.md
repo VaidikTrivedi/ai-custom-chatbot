@@ -1,0 +1,67 @@
+# Document-based Chatbot with NLP
+
+This is a custom machine learning model that can read documents and act as a chatbot, answering questions based on the provided documents using Natural Language Processing (NLP).
+
+## Features
+
+- Document processing and storage
+- Natural Language Understanding
+- Question-Answering capabilities
+- Semantic search for relevant context
+- Command-line interface for interaction
+
+## Requirements
+
+- Python 3.8+
+- PyTorch
+- Transformers
+- Sentence-Transformers
+- FAISS
+- NLTK
+- Other dependencies listed in requirements.txt
+
+## Installation
+
+1. Clone this repository
+2. Create a virtual environment (recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install the required packages:
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+1. Run the chat interface:
+```bash
+python chat_interface.py
+```
+
+2. Choose from the following options:
+   - Add document: Input your text documents
+   - Ask question: Ask questions about the documents
+   - Exit: Close the application
+
+## How it Works
+
+The chatbot uses state-of-the-art NLP models:
+- RoBERTa for question answering
+- Sentence transformers for semantic search
+- FAISS for efficient similarity search
+- NLTK for text processing
+
+The system processes documents by:
+1. Breaking them into sentences
+2. Creating embeddings for semantic search
+3. Using relevant context to answer questions
+4. Providing confidence scores for answers
+
+## Notes
+
+- The first run will download the required models
+- Performance depends on the quality and relevance of provided documents
+- Confidence scores indicate the reliability of answers 

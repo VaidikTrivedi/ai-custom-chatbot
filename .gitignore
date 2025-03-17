@@ -1,0 +1,7 @@
+chatbot_20250317_002946.log
+*.pyc
+custom-chatbot/Lib/site-packages/
+source.txt
+custom-chatbot/pyvenv.cfg
+custom-chatbot/Scripts/
+custom-chatbot/share
