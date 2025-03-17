@@ -5,6 +5,7 @@ This is a custom machine learning model that can read documents and act as a cha
 ## Features
 
 - Document processing and storage
+- Weblink processing
 - Natural Language Understanding
 - Question-Answering capabilities
 - Semantic search for relevant context
@@ -36,15 +37,15 @@ pip install -r requirements.txt
 
 ## Usage
 
-1. Run the chat interface:
+1. Add data source:
+- Provide path to the documents that you want to process (it works with txt and pdf files)
+- Provide web-links to the articles that you want to add (it might now work if website has a bot detection)
+
+2. Run the chat interface:
 ```bash
 python chat_interface.py
 ```
-
-2. Choose from the following options:
-   - Add document: Input your text documents
-   - Ask question: Ask questions about the documents
-   - Exit: Close the application
+3. Ask questions
 
 ## How it Works
 
