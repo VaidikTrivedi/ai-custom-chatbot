@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 # Configure logging with more verbose settings
-log_filename = f'chatbot_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+log_filename = f'logs/chatbot_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
 
 # Create console handler with a higher log level
 console_handler = logging.StreamHandler(sys.stdout)
@@ -42,8 +42,9 @@ logger.addHandler(file_handler)
 logging.info("Starting Document Chatbot application...")
 
 class DocumentChatbot:
-    def __init__(self):
+    def __init__(self, topic_documents = []):
         logging.info("Initializing DocumentChatbot...")
+        self.topic_documents = topic_documents
         # Initialize NLTK
         try:
             nltk.data.find('tokenizers/punkt')
@@ -71,16 +72,17 @@ class DocumentChatbot:
         
         # Initialize models with more powerful variants
         self.qa_model_name = "deepset/deberta-v3-large-squad2"
-        self.embedding_model_name = "sentence-transformers/all-mpnet-base-v2"
+        # self.embedding_model_name = "sentence-transformers/all-mpnet-base-v2"
+        self.embedding_model_name = "sentence-transformers/multi-qa-mpnet-base-dot-v1"  # More efficient model
         
         try:
             # Load models with device configuration
             self.qa_pipeline = pipeline(
-                'question-answering', 
+                'question-answering',
                 model=self.qa_model_name,
                 device=0 if self.device == "cuda" else -1,
-                max_seq_length=1024,  # Increased from 512
-                doc_stride=512        # Increased from 256
+                max_seq_length=1024,
+                doc_stride=512  # Reduced to avoid exceeding max length
             )
             
             # Load and configure embedding model
@@ -100,14 +102,20 @@ class DocumentChatbot:
             self.embedding_model = SentenceTransformer(self.embedding_model_name)
         
         # Initialize document storage with improved context handling
-        self.documents = []
-        self.sentences = []
-        self.sentence_embeddings = None
-        self.faiss_index = None
+        self.documents = [doc for doc in topic_documents] 
+        self.sentences = [doc for doc in topic_documents]  
+        self.sentence_embeddings = np.array([])  # Initialize as an empty NumPy array
+        # Initialize FAISS index with the correct dimension dynamically
+        self.faiss_index = None  # Placeholder for the FAISS index
+        if self.sentence_embeddings.size > 0:
+            vector_dimension = self.sentence_embeddings.shape[1]  # Dynamically determine embedding dimension
+            self.faiss_index = faiss.IndexFlatIP(vector_dimension)
         self.context_window = 25     # Increased from 15 to get more context
-        self.batch_size = 16
+        self.batch_size = 32
+        self.max_answer_length = 500  # Increase maximum answer length
         self.max_context_size = 20   # Increased from 10 to get more relevant contexts
-        self.min_confidence_score = 0.05  # Reduced from 0.1 to include more answers
+        self.min_confidence_score = 0.00  # Reduced from 0.1 to include more answers
+
         
         logging.info("Models loaded successfully")
 
@@ -158,14 +166,14 @@ class DocumentChatbot:
             logging.error(f"Error in _update_embeddings: {str(e)}")
             raise
 
-    def find_relevant_context(self, query, k=20):  # Increased from 10 to 20
+    def find_relevant_context(self, query, k=35):  # Increased from 10 to 20
         """Find the most relevant sentences using GPU acceleration"""
         with torch.no_grad():
             query_embedding = self.embedding_model.encode(
                 [query],
                 normalize_embeddings=True,
                 device=self.device,
-                show_progress_bar=False
+                show_progress_bar=True
             )
         
         # Get more similar contexts
@@ -297,8 +305,10 @@ def main():
     
     # Add sample document
     sample_text = """
-    This is a sample document. You can add your own documents here.
-    The chatbot will process them and answer questions based on their content.
+    Ways to Fix a Leak Under Your Sink
+    To temporarily fix a minor leak, wrap it with silicone tape or apply epoxy putty.
+    To fix a leaky pipe connection, tighten the slip nuts or replace old, cracked rubber gaskets.
+    If the leak is major, you may need to replace the P-trap. Find a replacement at your hardware store.
     """
     chatbot.add_document(sample_text)
     
@@ -309,5 +319,5 @@ def main():
     print(f"Answer: {answer['answer']}")
     print(f"Confidence: {answer['confidence']}")
 
-if __name__ == "__main__":
-    main() 
+# if __name__ == "__main__":
+#     main() 

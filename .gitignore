@@ -5,3 +5,7 @@ source.txt
 custom-chatbot/pyvenv.cfg
 custom-chatbot/Scripts/
 custom-chatbot/share
+ai-custom-chatbot/*
+logs
+temp.py
+.vscode/*

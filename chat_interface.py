@@ -67,12 +67,8 @@ def read_file(file_path):
     except Exception as e:
         print(f"\nError reading file: {str(e)}")
 
-def add_document(chatbot, data_sources):
-    file_paths = data_sources['local_file_paths']
-    file_content = ""
-    for file_path in file_paths:
-        file_content = file_content + read_file(file_path)
-    for web_url in data_sources['web_urls']:
+def add_document(chatbot, web_urls):
+    for web_url in web_urls:
         content = scrape_webpage(web_url)
         if content:
             chatbot.add_document(content)
@@ -90,14 +86,15 @@ def handle_question(chatbot):
     result = chatbot.answer_question(question)
     
     print("\nAnswer:", result['answer'])
-    print("Confidence:", result['confidence'])
+    print("Average Confidence:", result['confidence'])
     # print("\nRelevant context:", result['context'])
 
 def main():
     print("Initializing Document Chatbot...")
-    chatbot = DocumentChatbot()
-    data_sources = json.load(open('data_sources.json'))    
-    chatbot = add_document(chatbot, data_sources)
+    data_sources = json.load(open('data_sources.json'))
+    topic_documents = [read_file(docs) for docs in data_sources['local_file_paths']]
+    chatbot = DocumentChatbot(topic_documents=topic_documents)
+    chatbot = add_document(chatbot, data_sources['web_urls'])
     handle_question(chatbot)
 
 if __name__ == "__main__":
